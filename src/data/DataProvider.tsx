@@ -28,6 +28,7 @@ interface DataContextValue {
   addItem: (input: { title: string; kind: ItemKind; sortOrder: number }) => Promise<void>
   renameItem: (id: string, title: string) => Promise<void>
   removeItem: (id: string) => Promise<void>
+  reorderItems: (updates: { id: string; sort_order: number }[]) => Promise<void>
 }
 
 const DataContext = createContext<DataContextValue | undefined>(undefined)
@@ -131,6 +132,14 @@ export function DataProvider({ children }: { children: ReactNode }) {
     [reload],
   )
 
+  const reorderItems = useCallback(
+    async (updates: { id: string; sort_order: number }[]) => {
+      await Promise.all(updates.map((u) => apiUpdateItem(u.id, { sort_order: u.sort_order })))
+      await reload()
+    },
+    [reload],
+  )
+
   return (
     <DataContext.Provider
       value={{
@@ -145,6 +154,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
         addItem,
         renameItem,
         removeItem,
+        reorderItems,
       }}
     >
       {children}

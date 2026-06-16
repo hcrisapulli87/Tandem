@@ -365,3 +365,86 @@ button.check-row:hover {
 .check-empty {
   padding: 8px 2px;
 }
+
+/* My List */
+.page-title {
+  font-size: 1.4rem;
+  margin-bottom: 14px;
+}
+
+.add-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.add-form__row {
+  display: flex;
+  gap: 10px;
+}
+
+.select {
+  flex: 1;
+}
+
+.add-form__row .btn {
+  flex: none;
+}
+
+.manage-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.manage-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.manage-row__title {
+  flex: 1;
+  min-width: 120px;
+  font-weight: 600;
+}
+
+.manage-row__actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+}
+
+.manage-row__edit {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+}
+
+.manage-row__edit .input {
+  flex: 1;
+}
+
+.iconbtn {
+  appearance: none;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text);
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.iconbtn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
