@@ -73,6 +73,14 @@ create trigger on_auth_user_created
   after insert on auth.users
   for each row execute function public.handle_new_user();
 
+-- Backfill: create profiles for any users that already existed before the trigger
+-- was in place (e.g. if you added the two users before running this script). This
+-- makes setup order-independent and the script safe to re-run.
+insert into public.profiles (id, display_name)
+select id, split_part(email, '@', 1)
+from auth.users
+on conflict (id) do nothing;
+
 -- ─────────────────────────────────────────────────────────────────────────────
 -- Row-Level Security
 --   Read  → any authenticated user (i.e. either of you) sees everything.

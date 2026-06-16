@@ -35,12 +35,13 @@ app to connect. Without it the login screen still renders, but sign-in won't wor
 ### 1. Supabase project
 
 1. Create a project at [supabase.com](https://supabase.com) (free tier).
-2. **Authentication → Sign In / Providers:** keep **Email** enabled, and **turn OFF**
-   "Allow new users to sign up" (this locks the app to just the two of you).
-3. **Authentication → Users → Add user:** add both email addresses.
-4. **SQL Editor:** paste and run [`supabase/schema.sql`](supabase/schema.sql). It creates
+2. **SQL Editor:** paste and run [`supabase/schema.sql`](supabase/schema.sql). It creates
    the tables, the profile-on-signup trigger, the RLS policies, and enables Realtime. It's
-   safe to re-run.
+   safe to re-run, and backfills profiles for users added in either order.
+3. **Authentication → Sign In / Providers:** keep **Email** enabled, and **turn OFF**
+   "Allow new users to sign up" (this locks the app to just the two of you).
+4. **Authentication → Users → Add user:** add both email addresses (the trigger gives each
+   a profile row; if you added them before step 2, re-running the script backfills them).
 5. **Project Settings → API:** copy the **Project URL** and the **publishable** key
    (`sb_publishable_…`) into a local `.env`:
    ```
