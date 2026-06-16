@@ -10,6 +10,8 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
+dev-dist
+.vercel
 *.local
 
 # Local env (Supabase URL + anon key) — never commit; .env.example is the template
