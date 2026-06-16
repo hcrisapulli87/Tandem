@@ -1,10 +1,15 @@
+import { Routes, Route } from 'react-router-dom'
 import { useAuth } from './auth/AuthProvider'
+import { DataProvider } from './data/DataProvider'
+import { Layout } from './components/Layout'
 import Login from './screens/Login'
+import Today from './screens/Today'
+import MyList from './screens/MyList'
 
-// Top-level gate: unauthenticated → Login; authenticated → the app.
-// The authed routes (Today / My List) are wired in as those screens land.
+// Top-level gate: unauthenticated → Login; authenticated → the app (wrapped in
+// DataProvider so Today and My List share one live data source).
 export default function App() {
-  const { loading, session, signOut } = useAuth()
+  const { loading, session } = useAuth()
 
   if (loading) {
     return (
@@ -19,13 +24,13 @@ export default function App() {
   }
 
   return (
-    <main className="screen screen--center">
-      <h1 className="brand">Tandem</h1>
-      <p className="muted">Signed in as {session.user.email}</p>
-      <p className="muted">Today screen coming up next.</p>
-      <button className="btn btn--ghost" onClick={() => void signOut()}>
-        Sign out
-      </button>
-    </main>
+    <DataProvider>
+      <Routes>
+        <Route element={<Layout />}>
+          <Route path="/" element={<Today />} />
+          <Route path="/list" element={<MyList />} />
+        </Route>
+      </Routes>
+    </DataProvider>
   )
 }

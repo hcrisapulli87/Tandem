@@ -157,3 +157,211 @@ h3 {
   margin: 0;
   font-size: 0.9rem;
 }
+
+/* App bar */
+.app {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.appbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: calc(env(safe-area-inset-top) + 12px) 16px 12px;
+  background: rgba(15, 17, 21, 0.85);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--border);
+}
+
+.appbar__brand {
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  background: linear-gradient(120deg, var(--accent), #b39dff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.appbar__nav {
+  display: flex;
+  gap: 4px;
+  margin-right: auto;
+}
+
+.navlink {
+  color: var(--muted);
+  text-decoration: none;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.navlink--active {
+  color: var(--text);
+  background: var(--surface-2);
+}
+
+.btn--sm {
+  padding: 7px 11px;
+  font-size: 0.9rem;
+}
+
+/* Today grid: stacked on mobile, two columns on wider screens */
+.today-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--gap);
+}
+
+@media (min-width: 680px) {
+  .today-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* Person section */
+.person__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.person__name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.15rem;
+}
+
+.person__progress {
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+.tag {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  padding: 2px 6px;
+  border-radius: 6px;
+}
+
+.tag--you {
+  color: #0b1220;
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+/* Streak + week dots */
+.streak {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 12px 0 4px;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.streak__dots {
+  display: flex;
+  gap: 5px;
+}
+
+.dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: transparent;
+}
+
+.dot--partial {
+  background: var(--accent-strong);
+  border-color: var(--accent-strong);
+  opacity: 0.55;
+}
+
+.dot--full {
+  background: var(--success);
+  border-color: var(--success);
+}
+
+/* Checklist rows */
+.check-list {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.check-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  color: var(--text);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  cursor: pointer;
+  transition: background 0.12s ease, opacity 0.12s ease;
+}
+
+button.check-row:hover {
+  background: #262c37;
+}
+
+.check-row--readonly {
+  cursor: default;
+  opacity: 0.92;
+}
+
+.check-row--done .check-row__title {
+  color: var(--muted);
+  text-decoration: line-through;
+}
+
+.check-row__title {
+  flex: 1;
+}
+
+.checkbox {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 7px;
+  border: 1.5px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: transparent;
+}
+
+.checkbox--on {
+  background: var(--success);
+  border-color: var(--success);
+  color: #0b1220;
+}
+
+.check-empty {
+  padding: 8px 2px;
+}
