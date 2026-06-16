@@ -27,8 +27,8 @@ npm run build      # typecheck + production build
 npm run icons      # regenerate PWA icons from public/favicon.svg
 ```
 
-You need a `.env` (copy `.env.example`) with your Supabase URL + anon key for the app to
-connect. Without it the login screen still renders, but sign-in won't work.
+You need a `.env` (copy `.env.example`) with your Supabase URL + publishable key for the
+app to connect. Without it the login screen still renders, but sign-in won't work.
 
 ## One-time setup (the account-bound steps)
 
@@ -41,20 +41,20 @@ connect. Without it the login screen still renders, but sign-in won't work.
 4. **SQL Editor:** paste and run [`supabase/schema.sql`](supabase/schema.sql). It creates
    the tables, the profile-on-signup trigger, the RLS policies, and enables Realtime. It's
    safe to re-run.
-5. **Project Settings → API:** copy the **Project URL** and the **anon public** key into a
-   local `.env`:
+5. **Project Settings → API:** copy the **Project URL** and the **publishable** key
+   (`sb_publishable_…`) into a local `.env`:
    ```
    VITE_SUPABASE_URL=https://YOUR-PROJECT.supabase.co
-   VITE_SUPABASE_ANON_KEY=your-anon-public-key
+   VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_your-key
    ```
-   (The anon key is a public browser key — safe to expose. Security is in RLS.)
+   (The publishable key is a public browser key — safe to expose. Security is in RLS.)
 
 ### 2. Deploy to Vercel
 
 1. Push this folder to a GitHub repo.
 2. Import it at [vercel.com](https://vercel.com) (framework preset: **Vite**).
-3. Add the two env vars (`VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`) in the Vercel
-   project settings.
+3. Add the two env vars (`VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`) in the
+   Vercel project settings.
 4. Deploy. `vercel.json` already rewrites all routes to `index.html` for the SPA router.
 5. In Supabase **Authentication → URL Configuration**, set the **Site URL** to your Vercel
    URL so magic links redirect back to the deployed app.
