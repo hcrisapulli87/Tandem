@@ -7,7 +7,8 @@ interface AuthContextValue {
   session: Session | null
   user: User | null
   loading: boolean
-  signInWithMagicLink: (email: string) => Promise<void>
+  sendCode: (email: string) => Promise<void>
+  verifyCode: (email: string, token: string) => Promise<void>
   signOut: () => Promise<void>
 }
 
@@ -31,11 +32,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => sub.subscription.unsubscribe()
   }, [])
 
-  const signInWithMagicLink = async (email: string) => {
+  // Email the user a one-time code. shouldCreateUser:false matches the project's
+  // disabled-signups setting — only the two pre-added users can sign in.
+  const sendCode = async (email: string) => {
     const { error } = await supabase.auth.signInWithOtp({
       email,
-      options: { emailRedirectTo: window.location.origin },
+      options: { shouldCreateUser: false },
     })
+    if (error) throw error
+  }
+
+  // Verify the 6-digit code. This establishes the session in THIS app's storage,
+  // so it persists in the installed home-screen PWA (unlike a magic-link redirect,
+  // which lands the session in whatever browser opened the link).
+  const verifyCode = async (email: string, token: string) => {
+    const { error } = await supabase.auth.verifyOtp({ email, token, type: 'email' })
     if (error) throw error
   }
 
@@ -50,7 +61,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         session,
         user: session?.user ?? null,
         loading,
-        signInWithMagicLink,
+        sendCode,
+        verifyCode,
         signOut,
       }}
     >

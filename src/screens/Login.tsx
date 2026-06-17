@@ -2,35 +2,86 @@ import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { useAuth } from '../auth/AuthProvider'
 
-type Status = 'idle' | 'sending' | 'sent' | 'error'
+type Step = 'email' | 'code'
+type Status = 'idle' | 'working' | 'error'
 
 export default function Login() {
-  const { signInWithMagicLink } = useAuth()
+  const { sendCode, verifyCode } = useAuth()
+  const [step, setStep] = useState<Step>('email')
   const [email, setEmail] = useState('')
+  const [code, setCode] = useState('')
   const [status, setStatus] = useState<Status>('idle')
   const [errorMsg, setErrorMsg] = useState('')
 
-  const onSubmit = async (e: FormEvent) => {
+  const onEmailSubmit = async (e: FormEvent) => {
     e.preventDefault()
-    setStatus('sending')
+    setStatus('working')
     setErrorMsg('')
     try {
-      await signInWithMagicLink(email.trim())
-      setStatus('sent')
+      await sendCode(email.trim())
+      setStep('code')
+      setStatus('idle')
     } catch (err) {
-      setErrorMsg(err instanceof Error ? err.message : 'Something went wrong')
+      setErrorMsg(messageFor(err))
       setStatus('error')
     }
   }
 
-  if (status === 'sent') {
+  const onCodeSubmit = async (e: FormEvent) => {
+    e.preventDefault()
+    setStatus('working')
+    setErrorMsg('')
+    try {
+      // On success, onAuthStateChange flips the app to the signed-in view.
+      await verifyCode(email.trim(), code.trim())
+    } catch (err) {
+      setErrorMsg(messageFor(err))
+      setStatus('error')
+    }
+  }
+
+  if (step === 'code') {
     return (
       <main className="screen screen--center">
         <h1 className="brand">Tandem</h1>
-        <p>
-          Check your inbox — a magic link is on its way to <strong>{email}</strong>.
+        <p className="muted">
+          Enter the 6-digit code we emailed to <strong>{email}</strong>.
         </p>
-        <p className="muted">Open it on this device to sign in.</p>
+        <form className="login-form" onSubmit={onCodeSubmit}>
+          <input
+            className="input code-input"
+            type="text"
+            inputMode="numeric"
+            autoComplete="one-time-code"
+            pattern="[0-9]*"
+            maxLength={6}
+            placeholder="123456"
+            value={code}
+            onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
+            required
+            autoFocus
+          />
+          <button
+            className="btn btn--primary"
+            type="submit"
+            disabled={status === 'working' || code.length < 6}
+          >
+            {status === 'working' ? 'Verifying…' : 'Verify & sign in'}
+          </button>
+          {status === 'error' && <p className="error">{errorMsg}</p>}
+          <button
+            type="button"
+            className="btn btn--ghost btn--sm"
+            onClick={() => {
+              setStep('email')
+              setCode('')
+              setStatus('idle')
+              setErrorMsg('')
+            }}
+          >
+            Use a different email
+          </button>
+        </form>
       </main>
     )
   }
@@ -39,7 +90,7 @@ export default function Login() {
     <main className="screen screen--center">
       <h1 className="brand">Tandem</h1>
       <p className="muted">Two-person accountability, in sync.</p>
-      <form className="login-form" onSubmit={onSubmit}>
+      <form className="login-form" onSubmit={onEmailSubmit}>
         <input
           className="input"
           type="email"
@@ -50,11 +101,21 @@ export default function Login() {
           onChange={(e) => setEmail(e.target.value)}
           required
         />
-        <button className="btn btn--primary" type="submit" disabled={status === 'sending'}>
-          {status === 'sending' ? 'Sending…' : 'Send magic link'}
+        <button className="btn btn--primary" type="submit" disabled={status === 'working'}>
+          {status === 'working' ? 'Sending…' : 'Email me a code'}
         </button>
         {status === 'error' && <p className="error">{errorMsg}</p>}
       </form>
     </main>
   )
+}
+
+function messageFor(err: unknown): string {
+  const msg = err instanceof Error ? err.message : 'Something went wrong'
+  if (/rate limit/i.test(msg)) return 'Too many emails for now — wait a few minutes and try again.'
+  if (/invalid|expired|token/i.test(msg))
+    return 'That code didn’t match or has expired. Check the newest email or resend.'
+  if (/signups? not allowed|not authorized|not allowed/i.test(msg))
+    return 'That email isn’t set up for this app yet.'
+  return msg
 }
