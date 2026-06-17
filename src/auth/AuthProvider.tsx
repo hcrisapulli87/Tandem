@@ -7,8 +7,7 @@ interface AuthContextValue {
   session: Session | null
   user: User | null
   loading: boolean
-  sendCode: (email: string) => Promise<void>
-  verifyCode: (email: string, token: string) => Promise<void>
+  signIn: (email: string, password: string) => Promise<void>
   signOut: () => Promise<void>
 }
 
@@ -19,9 +18,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Restore an existing session on load, then keep it in sync. supabase-js
-    // also parses the magic-link tokens out of the URL automatically, which
-    // fires onAuthStateChange when someone returns from their email link.
+    // Restore the saved session on load, then keep it in sync. supabase-js
+    // persists the session in this app's own localStorage, so an installed
+    // home-screen PWA stays signed in across close/reopen.
     supabase.auth.getSession().then(({ data }) => {
       setSession(data.session)
       setLoading(false)
@@ -32,21 +31,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => sub.subscription.unsubscribe()
   }, [])
 
-  // Email the user a one-time code. shouldCreateUser:false matches the project's
-  // disabled-signups setting — only the two pre-added users can sign in.
-  const sendCode = async (email: string) => {
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-      options: { shouldCreateUser: false },
-    })
-    if (error) throw error
-  }
-
-  // Verify the 6-digit code. This establishes the session in THIS app's storage,
-  // so it persists in the installed home-screen PWA (unlike a magic-link redirect,
-  // which lands the session in whatever browser opened the link).
-  const verifyCode = async (email: string, token: string) => {
-    const { error } = await supabase.auth.verifyOtp({ email, token, type: 'email' })
+  // Email + password sign-in. The session is created here, in-app, so it lives
+  // in the PWA's storage (unlike a magic link, which lands in whatever browser
+  // opened the email). Sign-ups are disabled in the project, so only the two
+  // pre-created users can authenticate.
+  const signIn = async (email: string, password: string) => {
+    const { error } = await supabase.auth.signInWithPassword({ email, password })
     if (error) throw error
   }
 
@@ -61,8 +51,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         session,
         user: session?.user ?? null,
         loading,
-        sendCode,
-        verifyCode,
+        signIn,
         signOut,
       }}
     >

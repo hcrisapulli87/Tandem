@@ -5,7 +5,7 @@ daily habits (and ad-hoc one-off tasks); both people see each other's progress u
 live. Built as an installable, mobile-first PWA.
 
 - **Frontend:** React + Vite + TypeScript, installable PWA, dark theme
-- **Backend:** Supabase (Postgres + Realtime + magic-link Auth), protected by Row-Level Security
+- **Backend:** Supabase (Postgres + Realtime + email/password Auth), protected by Row-Level Security
 - **Hosting:** Vercel (frontend) + Supabase cloud — both free tier
 
 ## How it works
@@ -40,8 +40,10 @@ app to connect. Without it the login screen still renders, but sign-in won't wor
    safe to re-run, and backfills profiles for users added in either order.
 3. **Authentication → Sign In / Providers:** keep **Email** enabled, and **turn OFF**
    "Allow new users to sign up" (this locks the app to just the two of you).
-4. **Authentication → Users → Add user:** add both email addresses (the trigger gives each
-   a profile row; if you added them before step 2, re-running the script backfills them).
+4. **Authentication → Users → Add user → Create new user:** add both people with an email
+   **and a password**, and tick **Auto Confirm User** (so no confirmation email is needed).
+   The trigger gives each a profile row; if you added them before step 2, re-running the
+   script backfills them.
 5. **Project Settings → API:** copy the **Project URL** and the **publishable** key
    (`sb_publishable_…`) into a local `.env`:
    ```
@@ -58,12 +60,13 @@ app to connect. Without it the login screen still renders, but sign-in won't wor
    Vercel project settings.
 4. Deploy. `vercel.json` already rewrites all routes to `index.html` for the SPA router.
 5. In Supabase **Authentication → URL Configuration**, set the **Site URL** to your Vercel
-   URL so magic links redirect back to the deployed app.
+   URL (used as the app's canonical address).
 
 ### 3. Sign in
 
-Each person opens the app, enters their email, and clicks the magic link from their inbox
-on that device. On a phone, use the browser's **Add to Home Screen** to install it.
+Each person opens the app and signs in with the **email + password** you set for them in
+step 1.4. The session is created in-app and persists, so on a phone you can **Add to Home
+Screen** and stay signed in across reopens.
 
 ## Not in v1 (deliberately deferred)
 
