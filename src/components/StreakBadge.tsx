@@ -4,7 +4,7 @@ import type { DayStat } from '../data/summary'
 export function StreakBadge({ streak, week }: { streak: number; week: DayStat[] }) {
   return (
     <div className="streak" title={`${streak}-day streak`}>
-      <span className="streak__count">🔥 {streak}</span>
+      <span className="streak__count">⭐ {streak}</span>
       <span className="streak__dots">
         {week.map((s) => {
           const cls =

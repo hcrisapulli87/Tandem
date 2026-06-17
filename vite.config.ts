@@ -14,8 +14,8 @@ export default defineConfig({
         name: 'Tandem',
         short_name: 'Tandem',
         description: 'Two-person accountability checklist, in sync.',
-        theme_color: '#0f1115',
-        background_color: '#0f1115',
+        theme_color: '#ff86c2',
+        background_color: '#fff6fb',
         display: 'standalone',
         start_url: '/',
         icons: [

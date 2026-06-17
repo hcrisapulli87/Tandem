@@ -1,24 +1,31 @@
-/* Tandem — mobile-first dark theme.
-   Single source of palette + base element styles; screens/components
-   pull from these CSS variables rather than hardcoding colors. */
+/* Tandem — "Sugar Pop" kawaii theme.
+   Light, pastel, rounded. The cuteness comes from palette + shape + type
+   (heart ticks, gradient pinks, the rounded Baloo 2 wordmark) — no character art.
+   Screens/components pull from these CSS variables rather than hardcoding colors. */
+
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800&display=swap');
 
 :root {
-  --bg: #0f1115;
-  --surface: #171a21;
-  --surface-2: #1f242d;
-  --border: #2a2f3a;
-  --text: #e6e9ef;
-  --muted: #8b93a7;
-  --accent: #6ea8fe;
-  --accent-strong: #4f86f7;
-  --success: #43c279;
-  --danger: #e5645b;
-  --radius: 14px;
-  --radius-sm: 10px;
+  --bg: #fff6fb;
+  --bg-grad: linear-gradient(175deg, #fff6fb 0%, #fbeffb 55%, #f3ecff 100%);
+  --surface: #ffffff;
+  --surface-2: #fff2f9;
+  --border: #ffd9ec;
+  --border-strong: #ffc6e2;
+  --text: #6a5560;
+  --muted: #bfa6b5;
+  --accent: #ff86c2;
+  --accent-strong: #ff5fae;
+  --accent-2: #b9a7ff;
+  --success: #ff86c2;
+  --danger: #f0727f;
+  --radius: 20px;
+  --radius-sm: 14px;
   --gap: 16px;
   --maxw: 720px;
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  color-scheme: dark;
+  --font-cute: 'Baloo 2', system-ui, sans-serif;
+  font-family: 'Nunito', system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color-scheme: light;
 }
 
 * {
@@ -34,6 +41,8 @@ body,
 body {
   margin: 0;
   background: var(--bg);
+  background-image: var(--bg-grad);
+  background-attachment: fixed;
   color: var(--text);
   -webkit-font-smoothing: antialiased;
 }
@@ -42,7 +51,8 @@ h1,
 h2,
 h3 {
   margin: 0;
-  font-weight: 650;
+  font-family: var(--font-cute);
+  font-weight: 700;
   line-height: 1.2;
 }
 
@@ -69,30 +79,43 @@ h3 {
 }
 
 .brand {
-  font-size: 2.4rem;
-  letter-spacing: -0.02em;
-  background: linear-gradient(120deg, var(--accent), #b39dff);
+  font-family: var(--font-cute);
+  font-weight: 800;
+  font-size: 2.6rem;
+  text-transform: lowercase;
+  background: linear-gradient(120deg, var(--accent), var(--accent-2));
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
 }
 
+.brand::after {
+  content: " ♥";
+  -webkit-text-fill-color: #ffb3d8;
+}
+
 /* Buttons */
 .btn {
   appearance: none;
-  border: 1px solid var(--border);
-  background: var(--surface-2);
+  border: 1.5px solid var(--border);
+  background: #ffffff;
   color: var(--text);
   font: inherit;
-  font-weight: 600;
+  font-family: var(--font-cute);
+  font-weight: 700;
   padding: 12px 16px;
   border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: background 0.15s ease, border-color 0.15s ease, opacity 0.15s ease;
+  transition: background 0.15s ease, border-color 0.15s ease, opacity 0.15s ease,
+    transform 0.1s ease;
 }
 
 .btn:hover {
-  background: #262c37;
+  background: var(--surface-2);
+}
+
+.btn:active {
+  transform: translateY(1px);
 }
 
 .btn:disabled {
@@ -101,17 +124,24 @@ h3 {
 }
 
 .btn--primary {
-  background: var(--accent-strong);
-  border-color: var(--accent-strong);
-  color: #0b1220;
+  background: linear-gradient(120deg, var(--accent), var(--accent-2));
+  border-color: transparent;
+  color: #ffffff;
+  box-shadow: 0 6px 14px rgba(255, 134, 194, 0.35);
 }
 
 .btn--primary:hover {
-  background: var(--accent);
+  background: linear-gradient(120deg, var(--accent-strong), var(--accent-2));
 }
 
 .btn--ghost {
   background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.btn--ghost:hover {
+  background: var(--surface-2);
 }
 
 .btn--danger {
@@ -123,15 +153,19 @@ h3 {
   width: 100%;
   font: inherit;
   color: var(--text);
-  background: var(--surface);
-  border: 1px solid var(--border);
+  background: #fffafd;
+  border: 2px solid var(--border);
   border-radius: var(--radius-sm);
   padding: 12px 14px;
 }
 
 .input:focus {
   outline: none;
-  border-color: var(--accent-strong);
+  border-color: var(--accent);
+}
+
+.input::placeholder {
+  color: #d7b9cb;
 }
 
 /* Card surface */
@@ -140,6 +174,7 @@ h3 {
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 16px;
+  box-shadow: 0 6px 16px rgba(255, 134, 194, 0.12);
 }
 
 /* Login form */
@@ -173,42 +208,53 @@ h3 {
   align-items: center;
   gap: 14px;
   padding: calc(env(safe-area-inset-top) + 12px) 16px 12px;
-  background: rgba(15, 17, 21, 0.85);
+  background: rgba(255, 246, 251, 0.85);
   backdrop-filter: blur(8px);
   border-bottom: 1px solid var(--border);
 }
 
 .appbar__brand {
-  font-weight: 700;
-  letter-spacing: -0.01em;
-  background: linear-gradient(120deg, var(--accent), #b39dff);
+  font-family: var(--font-cute);
+  font-weight: 800;
+  font-size: 1.35rem;
+  text-transform: lowercase;
+  background: linear-gradient(120deg, var(--accent), var(--accent-2));
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
 }
 
+.appbar__brand::after {
+  content: " ♥";
+  -webkit-text-fill-color: #ffb3d8;
+  font-size: 0.9em;
+}
+
 .appbar__nav {
   display: flex;
-  gap: 4px;
+  gap: 5px;
   margin-right: auto;
 }
 
 .navlink {
   color: var(--muted);
   text-decoration: none;
-  padding: 6px 10px;
-  border-radius: 8px;
-  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-family: var(--font-cute);
+  font-weight: 700;
   font-size: 0.95rem;
-}
-
-.navlink--active {
-  color: var(--text);
   background: var(--surface-2);
 }
 
+.navlink--active {
+  color: #ffffff;
+  background: linear-gradient(120deg, var(--accent), var(--accent-2));
+  box-shadow: 0 3px 8px rgba(255, 134, 194, 0.35);
+}
+
 .btn--sm {
-  padding: 7px 11px;
+  padding: 7px 12px;
   font-size: 0.9rem;
 }
 
@@ -237,31 +283,34 @@ h3 {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 1.15rem;
+  font-size: 1.2rem;
+  font-family: var(--font-cute);
 }
 
 .person__progress {
-  color: var(--muted);
+  color: var(--accent);
+  font-family: var(--font-cute);
   font-variant-numeric: tabular-nums;
-  font-weight: 600;
+  font-weight: 800;
 }
 
 .tag {
-  font-size: 0.7rem;
-  font-weight: 700;
+  font-size: 0.62rem;
+  font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: var(--muted);
-  background: var(--surface-2);
-  border: 1px solid var(--border);
-  padding: 2px 6px;
-  border-radius: 6px;
+  font-family: var(--font-cute);
+  color: var(--accent-2);
+  background: #efeaff;
+  border: 1px solid #e2d9ff;
+  padding: 3px 8px;
+  border-radius: 999px;
 }
 
 .tag--you {
-  color: #0b1220;
-  background: var(--accent);
-  border-color: var(--accent);
+  color: #ffffff;
+  background: linear-gradient(120deg, var(--accent), var(--accent-2));
+  border-color: transparent;
 }
 
 /* Streak + week dots */
@@ -272,6 +321,7 @@ h3 {
   margin: 12px 0 4px;
   font-size: 0.9rem;
   color: var(--muted);
+  font-weight: 700;
 }
 
 .streak__dots {
@@ -283,19 +333,19 @@ h3 {
   width: 11px;
   height: 11px;
   border-radius: 50%;
-  border: 1px solid var(--border);
+  border: 1.5px solid var(--border-strong);
   background: transparent;
 }
 
 .dot--partial {
-  background: var(--accent-strong);
-  border-color: var(--accent-strong);
-  opacity: 0.55;
+  background: var(--accent);
+  border-color: var(--accent);
+  opacity: 0.5;
 }
 
 .dot--full {
-  background: var(--success);
-  border-color: var(--success);
+  background: var(--accent);
+  border-color: var(--accent);
 }
 
 /* Checklist rows */
@@ -319,47 +369,54 @@ h3 {
   background: var(--surface-2);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  padding: 12px 14px;
+  padding: 11px 14px;
   cursor: pointer;
-  transition: background 0.12s ease, opacity 0.12s ease;
+  transition: background 0.12s ease, transform 0.1s ease;
 }
 
 button.check-row:hover {
-  background: #262c37;
+  background: #ffe9f5;
+}
+
+button.check-row:active {
+  transform: scale(0.99);
 }
 
 .check-row--readonly {
   cursor: default;
-  opacity: 0.92;
+  opacity: 0.95;
 }
 
 .check-row--done .check-row__title {
   color: var(--muted);
   text-decoration: line-through;
+  text-decoration-color: var(--accent);
 }
 
 .check-row__title {
   flex: 1;
+  font-weight: 600;
 }
 
 .checkbox {
   flex: none;
-  width: 22px;
-  height: 22px;
-  border-radius: 7px;
-  border: 1.5px solid var(--border);
+  width: 24px;
+  height: 24px;
+  border-radius: 8px;
+  border: 2px solid var(--border-strong);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.85rem;
-  font-weight: 800;
-  color: transparent;
+  font-size: 0.95rem;
+  line-height: 1;
+  color: #ffabd4;
 }
 
 .checkbox--on {
-  background: var(--success);
-  border-color: var(--success);
-  color: #0b1220;
+  background: linear-gradient(135deg, var(--accent), #ff9ed0);
+  border-color: var(--accent);
+  color: #ffffff;
+  box-shadow: 0 2px 6px rgba(255, 134, 194, 0.35);
 }
 
 .check-empty {
@@ -368,7 +425,8 @@ button.check-row:hover {
 
 /* My List */
 .page-title {
-  font-size: 1.4rem;
+  font-family: var(--font-cute);
+  font-size: 1.5rem;
   margin-bottom: 14px;
 }
 
@@ -411,7 +469,7 @@ button.check-row:hover {
 .manage-row__title {
   flex: 1;
   min-width: 120px;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .manage-row__actions {
@@ -434,14 +492,18 @@ button.check-row:hover {
 .iconbtn {
   appearance: none;
   border: 1px solid var(--border);
-  background: var(--surface-2);
-  color: var(--text);
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
+  background: #ffffff;
+  color: var(--muted);
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
   cursor: pointer;
   font-size: 1rem;
   line-height: 1;
+}
+
+.iconbtn:hover {
+  background: var(--surface-2);
 }
 
 .iconbtn:disabled {

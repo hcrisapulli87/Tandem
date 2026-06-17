@@ -18,7 +18,7 @@ export function ChecklistItem({ title, kind, done, interactive, onToggle }: Prop
   const inner = (
     <>
       <span className={'checkbox' + (done ? ' checkbox--on' : '')} aria-hidden="true">
-        {done ? '✓' : ''}
+        {done ? '♥' : '♡'}
       </span>
       <span className="check-row__title">{title}</span>
       {kind === 'oneoff' && <span className="tag">one-off</span>}

@@ -19,6 +19,9 @@ dev-dist
 .env.local
 .env.*.local
 
+# Visual brainstorm mockups (local scratch, not part of the app)
+.superpowers/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
