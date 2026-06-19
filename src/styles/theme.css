@@ -510,3 +510,142 @@ button.check-row:active {
   opacity: 0.4;
   cursor: default;
 }
+
+/* Together section + dual sign-offs */
+section.together {
+  border-color: var(--border-strong);
+  background: linear-gradient(180deg, #fff7fc, #ffffff 62%);
+  margin-bottom: var(--gap);
+}
+
+.together-row {
+  list-style: none;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 11px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.together-row__title {
+  font-weight: 700;
+  font-family: var(--font-cute);
+}
+
+.together-signoffs {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+
+@media (min-width: 420px) {
+  .together-signoffs {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.signoff {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.signoff__btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  appearance: none;
+  border: 1px solid var(--border);
+  background: #ffffff;
+  border-radius: 999px;
+  padding: 6px 10px;
+  font: inherit;
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+}
+
+button.signoff__btn:hover {
+  background: var(--surface-2);
+}
+
+.signoff__btn--readonly {
+  cursor: default;
+}
+
+.signoff__name {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.tag--together {
+  color: #ffffff;
+  background: linear-gradient(120deg, var(--accent-2), var(--accent));
+  border-color: transparent;
+}
+
+/* Completion note */
+.check-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.note {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  flex-wrap: wrap;
+  padding: 0 4px 2px 36px; /* aligns under the checkbox (24px + 12px gap) */
+  font-size: 0.85rem;
+  color: var(--text);
+}
+
+.signoff .note {
+  padding-left: 4px;
+}
+
+.note__label {
+  color: var(--muted);
+  font-weight: 700;
+  font-size: 0.75rem;
+}
+
+.note__text {
+  color: var(--text);
+}
+
+.note__edit {
+  appearance: none;
+  border: none;
+  background: none;
+  padding: 0;
+  color: var(--accent-strong);
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.note--edit {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  padding: 4px 4px 4px 36px;
+}
+
+.signoff .note--edit {
+  padding-left: 4px;
+}
+
+.note__input {
+  flex: 1;
+  padding: 7px 10px;
+  font-size: 0.85rem;
+}
