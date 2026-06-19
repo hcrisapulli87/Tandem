@@ -20,6 +20,7 @@ export async function addItem(input: {
   title: string
   kind: ItemKind
   sortOrder: number
+  shared?: boolean
 }): Promise<Item> {
   const { data, error } = await supabase
     .from('items')
@@ -27,6 +28,7 @@ export async function addItem(input: {
       owner_id: input.ownerId,
       title: input.title,
       kind: input.kind,
+      shared: input.shared ?? false,
       sort_order: input.sortOrder,
     })
     .select()
