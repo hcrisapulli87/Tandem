@@ -1,4 +1,5 @@
 import type { ItemKind } from '../data/types'
+import { CompletionNote } from './CompletionNote'
 
 interface Props {
   title: string
@@ -6,11 +7,21 @@ interface Props {
   done: boolean
   // Your own items are tappable; the other person's render read-only.
   interactive: boolean
+  note?: string | null
   onToggle?: (done: boolean) => void
+  onSaveNote?: (note: string) => void
 }
 
-export function ChecklistItem({ title, kind, done, interactive, onToggle }: Props) {
-  const className =
+export function ChecklistItem({
+  title,
+  kind,
+  done,
+  interactive,
+  note = null,
+  onToggle,
+  onSaveNote,
+}: Props) {
+  const rowClass =
     'check-row' +
     (done ? ' check-row--done' : '') +
     (interactive ? '' : ' check-row--readonly')
@@ -25,18 +36,30 @@ export function ChecklistItem({ title, kind, done, interactive, onToggle }: Prop
     </>
   )
 
-  if (!interactive) {
-    return <div className={className}>{inner}</div>
-  }
-
-  return (
+  // The note sits OUTSIDE the button — interactive content can't nest inside a <button>.
+  const row = interactive ? (
     <button
       type="button"
-      className={className}
+      className={rowClass}
       onClick={() => onToggle?.(!done)}
       aria-pressed={done}
     >
       {inner}
     </button>
+  ) : (
+    <div className={rowClass}>{inner}</div>
+  )
+
+  return (
+    <div className="check-item">
+      {row}
+      {done && (
+        <CompletionNote
+          note={note}
+          editable={interactive && !!onSaveNote}
+          onSave={onSaveNote}
+        />
+      )}
+    </div>
   )
 }
