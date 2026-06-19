@@ -9,7 +9,7 @@ import {
   archiveItem as apiArchiveItem,
   deleteItem as apiDeleteItem,
 } from './items'
-import { fetchCompletions, setCompleted, clearCompleted } from './completions'
+import { fetchCompletions, setCompleted, clearCompleted, setNote as apiSetNote } from './completions'
 import { useRealtime } from './useRealtime'
 import { lastNDates, todayISO } from './dates'
 import { useAuth } from '../auth/AuthProvider'
@@ -25,7 +25,8 @@ interface DataContextValue {
   completions: Completion[]
   reload: () => void
   toggleToday: (item: Item, done: boolean) => Promise<void>
-  addItem: (input: { title: string; kind: ItemKind; sortOrder: number }) => Promise<void>
+  setNote: (item: Item, note: string) => Promise<void>
+  addItem: (input: { title: string; kind: ItemKind; shared?: boolean; sortOrder: number }) => Promise<void>
   renameItem: (id: string, title: string) => Promise<void>
   removeItem: (id: string) => Promise<void>
   reorderItems: (updates: { id: string; sort_order: number }[]) => Promise<void>
@@ -80,6 +81,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
           owner_id: user.id,
           for_date: today,
           completed_at: new Date().toISOString(),
+          note: null,
         }
         setCompletions((prev) => [...prev, optimistic])
         // Completing a one-off removes it from the active list for good.
@@ -87,8 +89,11 @@ export function DataProvider({ children }: { children: ReactNode }) {
           setItems((prev) => prev.filter((i) => i.id !== item.id))
         }
       } else {
+        // Owner-scoped so unchecking a together item clears only YOUR sign-off.
         setCompletions((prev) =>
-          prev.filter((c) => !(c.item_id === item.id && c.for_date === today)),
+          prev.filter(
+            (c) => !(c.item_id === item.id && c.for_date === today && c.owner_id === user.id),
+          ),
         )
       }
 
@@ -97,7 +102,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
           await setCompleted(item.id, user.id, today)
           if (item.kind === 'oneoff') await apiArchiveItem(item.id)
         } else {
-          await clearCompleted(item.id, today)
+          await clearCompleted(item.id, today, user.id)
         }
       } catch (e) {
         setError(e instanceof Error ? e.message : 'Update failed')
@@ -107,8 +112,32 @@ export function DataProvider({ children }: { children: ReactNode }) {
     [user, today, reload],
   )
 
+  // Add/edit the note on the current user's completion of an item for today. Optimistic;
+  // a failure resyncs. Updates by (item, owner, date), so it works even before the
+  // optimistic completion's real id has arrived from the server.
+  const setNote = useCallback(
+    async (item: Item, note: string) => {
+      if (!user) return
+      const value = note.trim() === '' ? null : note.trim()
+      setCompletions((prev) =>
+        prev.map((c) =>
+          c.item_id === item.id && c.for_date === today && c.owner_id === user.id
+            ? { ...c, note: value }
+            : c,
+        ),
+      )
+      try {
+        await apiSetNote(item.id, user.id, today, note)
+      } catch (e) {
+        setError(e instanceof Error ? e.message : 'Note update failed')
+        void reload()
+      }
+    },
+    [user, today, reload],
+  )
+
   const addItem = useCallback(
-    async (input: { title: string; kind: ItemKind; sortOrder: number }) => {
+    async (input: { title: string; kind: ItemKind; shared?: boolean; sortOrder: number }) => {
       if (!user) return
       await apiAddItem({ ownerId: user.id, ...input })
       await reload()
@@ -151,6 +180,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
         completions,
         reload,
         toggleToday,
+        setNote,
         addItem,
         renameItem,
         removeItem,
