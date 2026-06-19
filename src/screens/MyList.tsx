@@ -2,16 +2,17 @@ import { useMemo, useState } from 'react'
 import type { FormEvent } from 'react'
 import { useAuth } from '../auth/AuthProvider'
 import { useData } from '../data/DataProvider'
-import type { Item, ItemKind } from '../data/types'
+import type { Item } from '../data/types'
 
 export default function MyList() {
   const { user } = useAuth()
   const { items, addItem, renameItem, removeItem, reorderItems } = useData()
 
+  // My own items plus every together item (either person manages those).
   const myItems = useMemo(
     () =>
       items
-        .filter((i) => i.owner_id === user?.id)
+        .filter((i) => i.owner_id === user?.id || i.shared)
         .sort(
           (a, b) =>
             a.sort_order - b.sort_order || a.created_at.localeCompare(b.created_at),
@@ -19,8 +20,10 @@ export default function MyList() {
     [items, user?.id],
   )
 
+  type NewType = 'daily' | 'oneoff' | 'together'
+
   const [title, setTitle] = useState('')
-  const [kind, setKind] = useState<ItemKind>('daily')
+  const [type, setType] = useState<NewType>('daily')
   const [busy, setBusy] = useState(false)
 
   const onAdd = async (e: FormEvent) => {
@@ -32,9 +35,14 @@ export default function MyList() {
       const nextSort = myItems.length
         ? Math.max(...myItems.map((i) => i.sort_order)) + 1
         : 0
-      await addItem({ title: trimmed, kind, sortOrder: nextSort })
+      await addItem({
+        title: trimmed,
+        kind: type === 'oneoff' ? 'oneoff' : 'daily',
+        shared: type === 'together',
+        sortOrder: nextSort,
+      })
       setTitle('')
-      setKind('daily')
+      setType('daily')
     } finally {
       setBusy(false)
     }
@@ -67,11 +75,12 @@ export default function MyList() {
         <div className="add-form__row">
           <select
             className="input select"
-            value={kind}
-            onChange={(e) => setKind(e.target.value as ItemKind)}
+            value={type}
+            onChange={(e) => setType(e.target.value as NewType)}
           >
-            <option value="daily">Daily habit</option>
-            <option value="oneoff">One-off task</option>
+            <option value="daily">Daily (just me)</option>
+            <option value="oneoff">One-off (just me)</option>
+            <option value="together">Together (both of us)</option>
           </select>
           <button className="btn btn--primary" type="submit" disabled={busy}>
             Add
@@ -158,7 +167,9 @@ function ManageRow({
   return (
     <li className="manage-row card">
       <span className="manage-row__title">{item.title}</span>
-      <span className="tag">{item.kind === 'daily' ? 'daily' : 'one-off'}</span>
+      <span className={'tag' + (item.shared ? ' tag--together' : '')}>
+        {item.shared ? 'together' : item.kind === 'daily' ? 'daily' : 'one-off'}
+      </span>
       <div className="manage-row__actions">
         <button className="iconbtn" title="Move up" disabled={isFirst} onClick={() => void onMoveUp()}>
           ↑
