@@ -6,6 +6,7 @@ import { StreakBadge } from './StreakBadge'
 export interface Row {
   item: Item
   done: boolean
+  note: string | null
 }
 
 interface Props {
@@ -16,6 +17,7 @@ interface Props {
   streak: number
   week: DayStat[]
   onToggle: (item: Item, done: boolean) => void
+  onSaveNote: (item: Item, note: string) => void
 }
 
 export function PersonSection({
@@ -26,6 +28,7 @@ export function PersonSection({
   streak,
   week,
   onToggle,
+  onSaveNote,
 }: Props) {
   return (
     <section className="person card">
@@ -43,14 +46,16 @@ export function PersonSection({
 
       <ul className="check-list">
         {rows.length === 0 && <li className="muted check-empty">No items yet.</li>}
-        {rows.map(({ item, done }) => (
+        {rows.map(({ item, done, note }) => (
           <li key={item.id}>
             <ChecklistItem
               title={item.title}
               kind={item.kind}
               done={done}
+              note={note}
               interactive={isSelf}
               onToggle={(d) => onToggle(item, d)}
+              onSaveNote={isSelf ? (n) => onSaveNote(item, n) : undefined}
             />
           </li>
         ))}
