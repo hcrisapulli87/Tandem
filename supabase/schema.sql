@@ -27,6 +27,7 @@ create table if not exists public.items (
   title      text not null check (length(trim(title)) > 0),
   kind       text not null default 'daily' check (kind in ('daily', 'oneoff')),
   active     boolean not null default true,
+  shared     boolean not null default false,
   sort_order integer not null default 0,
   created_at timestamptz not null default now()
 );
@@ -41,7 +42,7 @@ create table if not exists public.completions (
   owner_id     uuid not null references public.profiles (id) on delete cascade,
   for_date     date not null,
   completed_at timestamptz not null default now(),
-  unique (item_id, for_date)
+  note         text
 );
 
 create index if not exists items_owner_active_idx
@@ -49,6 +50,28 @@ create index if not exists items_owner_active_idx
 
 create index if not exists completions_owner_date_idx
   on public.completions (owner_id, for_date);
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- Migration for installs created before "together checks" + notes existed.
+-- create-table-if-not-exists won't add columns to an existing table, so add them
+-- explicitly. All guarded, so the whole script stays safely re-runnable.
+-- ─────────────────────────────────────────────────────────────────────────────
+alter table public.items       add column if not exists shared boolean not null default false;
+alter table public.completions add column if not exists note text;
+
+-- Move from one-completion-per-(item, day) to one-per-(item, owner, day) so BOTH
+-- people can sign off the same together check on the same day. Drop the old
+-- auto-named key if a prior version created it, then ensure the new one exists.
+alter table public.completions drop constraint if exists completions_item_id_for_date_key;
+do $$
+begin
+  if not exists (
+    select 1 from pg_constraint where conname = 'completions_item_owner_for_date_key'
+  ) then
+    alter table public.completions
+      add constraint completions_item_owner_for_date_key unique (item_id, owner_id, for_date);
+  end if;
+end $$;
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- Auto-create a profile when a new auth user is added.
@@ -119,18 +142,21 @@ create policy "items: insert own"
   to authenticated
   with check (owner_id = auth.uid());
 
+-- Shared (together) items are jointly managed: either person may rename/reorder or
+-- delete them. The update `with check (… or shared)` keeps the row shared, so a
+-- non-creator can edit but cannot un-share or move it into their own solo list.
 drop policy if exists "items: update own" on public.items;
 create policy "items: update own"
   on public.items for update
   to authenticated
-  using (owner_id = auth.uid())
-  with check (owner_id = auth.uid());
+  using (owner_id = auth.uid() or shared)
+  with check (owner_id = auth.uid() or shared);
 
 drop policy if exists "items: delete own" on public.items;
 create policy "items: delete own"
   on public.items for delete
   to authenticated
-  using (owner_id = auth.uid());
+  using (owner_id = auth.uid() or shared);
 
 -- completions ------------------------------------------------------------------
 drop policy if exists "completions: read all (authenticated)" on public.completions;
@@ -139,15 +165,20 @@ create policy "completions: read all (authenticated)"
   to authenticated using (true);
 
 -- Insert guard does BOTH checks: the row is stamped with your id AND the item it
--- points at is actually yours. This blocks the "occupy someone else's (item,date)
--- slot" tamper described above.
+-- points at is either yours OR a shared (together) item. The "or shared" clause is
+-- the ONLY new write capability these features add — it lets you sign off a together
+-- check your partner created, and nothing else. It still blocks occupying someone
+-- else's solo (item, date) slot.
 drop policy if exists "completions: insert own item" on public.completions;
 create policy "completions: insert own item"
   on public.completions for insert
   to authenticated
   with check (
     owner_id = auth.uid()
-    and item_id in (select id from public.items where owner_id = auth.uid())
+    and item_id in (
+      select id from public.items
+      where owner_id = auth.uid() or shared
+    )
   );
 
 drop policy if exists "completions: update own" on public.completions;
