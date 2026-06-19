@@ -8,6 +8,7 @@ const item = (id: string): Item => ({
   title: id,
   kind: 'daily',
   active: true,
+  shared: false,
   sort_order: 0,
   created_at: '2026-01-01',
 })

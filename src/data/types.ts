@@ -15,6 +15,7 @@ export interface Item {
   title: string
   kind: ItemKind
   active: boolean
+  shared: boolean // true = a "together" check both people sign off
   sort_order: number
   created_at: string
 }
@@ -25,4 +26,5 @@ export interface Completion {
   owner_id: string
   for_date: string // YYYY-MM-DD (the local day this check-off counts for)
   completed_at: string
+  note?: string | null // optional completion description, shown under the check
 }
